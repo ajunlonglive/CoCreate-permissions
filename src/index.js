@@ -34,9 +34,9 @@ class CoCreatePermission {
 		this.permissions.set(apikey, permission)
 	}
 	
-	async getRolesByKey(apikey, organization_id) {
-		if (this.permissions.get(apikey)) {
-			return this.permissions.get(apikey)
+	async getRolesByKey(key, organization_id, type) {
+		if (this.permissions.get(key)) {
+			return this.permissions.get(key)
 		} else {
 			
 			//. get permissions from db
@@ -48,9 +48,9 @@ class CoCreatePermission {
 				//. if user_id/token => domain => colections => roles = true
 			//. merget roles collection and permission collection
 			
-			let permission = await this.getPermissionObject(apikey, organization_id);
+			let permission = await this.getPermissionObject(key, organization_id, type);
 
-			this.permissions.set(apikey, permission)
+			this.permissions.set(key, permission)
 			return permission
 		}
 	}
@@ -62,86 +62,63 @@ class CoCreatePermission {
 		// return {
 		// 	apikey: apiKey,
 		// 	organization_id,
-		// 	key: 'collections',
-		// 	key_value: collection,
-		// 	type: action
+		// 	type: 'readDocument || getStripe || login',
+		// 	plugin: 'messages || strip || facebook',
+		//  collection: 'test || users'
 		// }
 		
 	}
 	
 	//. overrride function
-	async getPermissionObject(key, organization_id) {
+	async getPermissionObject(key, organization_id, type) {
 		return null;
-		// try {
-		// 	if (!organization_id) {
-		// 		return null;
-		// 	}
-
-		// 	const db = this.dbClient.db(organization_id)
-		// 	if (!db)  {
-		// 		return null;
-		// 	}
-		// 	const collection = db.collection('permissions');
-		// 	if (!collection) {
-		// 		return null;
-		// 	}
-
-		// 	let permission = await collection.findOne({
-		// 		apikey: key,
-		// 		type: 'apikey'
-		// 	});
-			
-		// 	if (!permission.collections) {
-		// 		permission.collections = {};
-		// 	}
-
-		// 	if (permission && permission.roles) {
-		// 		const role_ids = permission.roles.map((x) => ObjectID(x));
-
-		// 		let roles = await collection.find({
-		// 			_id: { $in: role_ids }
-		// 		}).toArray()
-
-		// 		roles.map(role =>  {
-		// 			if (role.collections) {
-		// 				// role_collections = { ...role_collections, ...role.collections}
-		// 				for (const c in role.collections) {
-		// 					if (permission.collections[c]) {
-		// 						permission.collections[c] = [...new Set([...permission.collections[c], ...role.collections[c]])]
-		// 					}
-		// 				}
-		// 			}
-		// 		})
-		// 	}
-		// 	console.log(permission)
-			
-		// 	return permission;
-		// } catch (error) {
-		// 	return null;
-		// }
+	}
+	
+	async check(action, data, req, user_id) {
+		const host = this.getHost(req.headers)
+		const { apikey, ...paramData} = this.getParameters(action, data)
+		// const { apikey, organization_id, key, key_value, type } = this.getParameters(action, data)
+		paramData.host = host;
+		
+		//. check user
+		let status = false
+		status = await this.checkPermissionObject({
+			...paramData,
+			id: user_id,
+			id_type: 'user_id'
+		})
+		if (!status) {
+			//. check apikey
+			status = await this.checkPermissionObject({
+				...paramData,
+				id: apikey,
+				id_type: 'apikey'
+			})
+		}
+		// return true;
+		return status;
 		
 	}
 	
-	async check(action, data, { headers }) {
+	getHost(headers) {
 		const origin =  headers['origin']
 		
 		let host = headers['x-forwarded-for'];
 		if (origin) {
 			host = url.parse(origin).hostname;
 		}
+		return host
+	}
+	
+	async checkPermissionObject({id, id_type, host, collection, plugin, type, organization_id}) {
+		if (!id) return false;
 		
-		const { apikey, organization_id, key, key_value, type } = this.getParameters(action, data)
-		const permission = await this.getRolesByKey(apikey, organization_id)
-		console.log(permission)
-		console.log({apikey, organization_id, key, key_value, type})
-
-		return true;
-		
-		if (action == 'connect') return true;
+		const permission = await this.getRolesByKey(id, organization_id, id_type || "apikey")
+		console.log(id, id_type, permission)
 		
 		if (!permission) return false;
 		
-		if (!apikey || !organization_id ) {
+		if (!organization_id ) {
 			return false;
 		}
 		
@@ -154,64 +131,21 @@ class CoCreatePermission {
 		if (!permission.hosts || !this.checkValue(permission.hosts, host)) {
 			return false;
 		}
+
+		let status = this.checkCollection(permission['collections'], collection, type)
+		if (!status) {
+			status = this.checkPlugin(permission['plugins'], plugin, type)
+		}
+
 		
-		if (!permission[key]) return false
-
-		let status = this.checkCollection(permission[key], key_value, type)
-
 		return status;
 	}
 	
-
-	
-	// async checkByKey(action, { apiKey, organization_id, securityKey, collection, ...rest }, {headers}) {
-	// 	const origin =  headers['origin']
-	// 	let host = headers['x-forwarded-for'];
-	// 	if (origin) {
-	// 		host = url.parse(origin).hostname;
-	// 	}
-
-	// 	const permission = await this.getRolesByKey(apiKey, organization_id)
-	// 	// console.log(permission)
-	// 	return true;
-
-
-	// 	if (action == 'connect') {
-	// 		return true;
-	// 	}
-		
-	// 	if (!apiKey || !organization_id ) {
-	// 		return false;
-	// 	}
-		
-	// 	if (!permission) {
-	// 		return false;
-	// 	}
-		
-	// 	if (permission.organization_id != organization_id) {
-	// 		return false;
-	// 	}
-		
-	// 	if (!permission.hosts || this.checkValue(permission.hosts, host)) {
-	// 		return false;
-	// 	}
-		
-	// 	if (!permission.collections) return false
-
-	// 	let status = this.checkCollection(permission.collections, collection, action)
-	// 	if (!status) {
-	// 		status = this.checkCollection(permission.role_collections, collection, action);
-	// 	}
-	// 	return status;
-	// }
-	
-	checkCollection(collections, selected_collection, action) 
+	checkCollection(collections, collection, action) 
 	{
-		console.log({collections, selected_collection, action})
+		if (!collections || !collection) return false;
 		
-		if (!collections) return false;
-		
-		let collection_roles = collections[selected_collection];
+		let collection_roles = collections[collection];
 		if (collection_roles && collection_roles.length > 0) {
 			let status = collection_roles.some(x => {
 				if (CRUD_PERMISSION[x]) {
@@ -224,6 +158,18 @@ class CoCreatePermission {
 		} else {
 			return false;
 		}
+	}
+	
+	checkPlugin(plugins, plugin, action) {
+		console.log(plugins)
+		if (!plugins || !plugin) return false;
+		
+		let selected_plugin = plugins[plugin]
+		if (selected_plugin && selected_plugin.length >0) {
+			let status = selected_plugin.some(x => x == action)
+			return status;
+		}
+		return false;
 	}
 	
 	checkValue(items, value) {
