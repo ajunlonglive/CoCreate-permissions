@@ -34,6 +34,10 @@ class CoCreatePermission {
 		this.permissions.set(apikey, permission)
 	}
 	
+	hasPermission(key) {
+		return this.permissions.has(key)
+	}
+	
 	async getRolesByKey(key, organization_id, type) {
 		if (this.permissions.get(key)) {
 			return this.permissions.get(key)
@@ -79,7 +83,6 @@ class CoCreatePermission {
 		const { apikey, ...paramData} = this.getParameters(action, data)
 		// const { apikey, organization_id, key, key_value, type } = this.getParameters(action, data)
 		paramData.host = host;
-		
 		//. check user
 		let status = false
 		status = await this.checkPermissionObject({
@@ -110,11 +113,14 @@ class CoCreatePermission {
 		return host
 	}
 	
-	async checkPermissionObject({id, id_type, host, collection, plugin, type, organization_id}) {
+	async checkPermissionObject({id, id_type, host, collection, plugin, type, organization_id, document_id}) {
 		if (!id) return false;
 		
 		const permission = await this.getRolesByKey(id, organization_id, id_type || "apikey")
-		console.log(id, id_type, permission)
+		
+		// console.log('---- permission sections ----')
+		// console.log({document_id, permission})
+		// console.log(this.checkDocument(permission['documents'], document_id, type))
 		
 		if (!permission) return false;
 		
@@ -133,6 +139,9 @@ class CoCreatePermission {
 		}
 
 		let status = this.checkCollection(permission['collections'], collection, type)
+		if (!status) {
+			status = this.checkDocument(permission['documents'], document_id, type)
+		}
 		if (!status) {
 			status = this.checkPlugin(permission['plugins'], plugin, type)
 		}
@@ -158,6 +167,14 @@ class CoCreatePermission {
 		} else {
 			return false;
 		}
+	}
+	
+	checkDocument(documents, document_id, action)
+	{
+		if (!documents || !document_id) return false
+		let status = documents.some(x => x == document_id)
+
+		return status;
 	}
 	
 	checkPlugin(plugins, plugin, action) {
