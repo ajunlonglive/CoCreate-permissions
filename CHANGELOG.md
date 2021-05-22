@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/CoCreate-app/CoCreate-permissions/compare/v1.1.0...v1.1.1) (2021-05-22)
+
+
+### Bug Fixes
+
+* Update README ([7b8be22](https://github.com/CoCreate-app/CoCreate-permissions/commit/7b8be22a8625c8057641d3371a35ecc596ccefbb))
+
 # [1.1.0](https://github.com/CoCreate-app/CoCreate-permissions/compare/v1.0.1...v1.1.0) (2021-05-07)
 
 
