@@ -113,7 +113,7 @@ class CoCreatePermission {
 		return host
 	}
 	
-	async checkPermissionObject({id, id_type, host, collection, plugin, type, organization_id, document_id}) {
+	async checkPermissionObject({id, id_type, host, collection, plugin, type, organization_id, document_id, name}) {
 		if (!id) return false;
 		
 		const permission = await this.getRolesByKey(id, organization_id, id_type || "apikey")
@@ -139,8 +139,8 @@ class CoCreatePermission {
 		}
 
 		let status = this.checkCollection(permission['collections'], collection, type)
-		if (!status) {
-			status = this.checkDocument(permission['documents'], document_id, type)
+		if (status) {
+			status = this.checkDocument(permission['documents'], document_id, type, name)
 		}
 		if (!status) {
 			status = this.checkPlugin(permission['plugins'], plugin, type)
@@ -169,10 +169,21 @@ class CoCreatePermission {
 		}
 	}
 	
-	checkDocument(documents, document_id, action)
+	checkDocument(documents, id, action, name)
 	{
-		if (!documents || !document_id) return false
-		let status = documents.some(x => x == document_id)
+		let status = true;
+		if (!documents || !id || !name) return true
+		
+		if (documents && id &&  documents[id]) {
+			const { permissions, fields } = documents[id]
+			const action_type = this.__getActionType(action)
+			
+			if (name && fields[name]) {
+				status = fields[name].includes(action_type)
+			} else {
+				status = permissions.includes(action_type)
+			} 
+		} 
 
 		return status;
 	}
@@ -188,13 +199,24 @@ class CoCreatePermission {
 		}
 		return false;
 	}
-	
+
 	checkValue(items, value) {
 		if (!items) return false;
 		if (items.includes("*") || items.includes(value)) {
 			return true;
 		}
 		return false;
+	}
+	
+	__getActionType(action) {
+		let action_type = action
+		for (let key in CRUD_PERMISSION) {
+			if (CRUD_PERMISSION[key].includes(action)) {
+				action_type = key
+				break;
+			}
+		}
+		return action_type
 	}
 }
 module.exports = CoCreatePermission
