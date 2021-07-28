@@ -1,3 +1,10 @@
+## [1.1.3](https://github.com/CoCreate-app/CoCreate-permissions/compare/v1.1.2...v1.1.3) (2021-07-28)
+
+
+### Bug Fixes
+
+* removed data- from crud, fetch, filter and pass attributes ([2ed6c35](https://github.com/CoCreate-app/CoCreate-permissions/commit/2ed6c358d60b3965b789883369e7ae4518483371))
+
 ## [1.1.2](https://github.com/CoCreate-app/CoCreate-permissions/compare/v1.1.1...v1.1.2) (2021-07-17)
 
 
