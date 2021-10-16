@@ -1,3 +1,10 @@
+## [1.1.4](https://github.com/CoCreate-app/CoCreate-permissions/compare/v1.1.3...v1.1.4) (2021-10-16)
+
+
+### Bug Fixes
+
+* update to use new await crud.xxx ([7d2d489](https://github.com/CoCreate-app/CoCreate-permissions/commit/7d2d489c7ef9ecd97f76078723c1b1952723c053))
+
 ## [1.1.3](https://github.com/CoCreate-app/CoCreate-permissions/compare/v1.1.2...v1.1.3) (2021-07-28)
 
 
