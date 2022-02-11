@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/CoCreate-app/CoCreate-permissions/compare/v1.1.4...v1.2.0) (2022-02-11)
+
+
+### Features
+
+* support for * to return true ([5e7562e](https://github.com/CoCreate-app/CoCreate-permissions/commit/5e7562e2aba6588fc6a1a2efef97f19486afd906))
+
 ## [1.1.4](https://github.com/CoCreate-app/CoCreate-permissions/compare/v1.1.3...v1.1.4) (2021-10-16)
 
 
