@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/CoCreate-app/CoCreate-permissions/compare/v1.2.0...v1.2.1) (2022-02-11)
+
+
+### Bug Fixes
+
+* use host to create socket ([5e4648e](https://github.com/CoCreate-app/CoCreate-permissions/commit/5e4648ebf5e346a3558ab55b929ff41f9992edda))
+
 # [1.2.0](https://github.com/CoCreate-app/CoCreate-permissions/compare/v1.1.4...v1.2.0) (2022-02-11)
 
 
