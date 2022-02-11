@@ -38,11 +38,11 @@ class CoCreatePermission {
 		return this.permissions.has(key)
 	}
 	
-	async getRolesByKey(key, organization_id, type) {
+	async getRolesByKey(key, organization_id, type, host) {
 		if (this.permissions.get(key)) {
 			return this.permissions.get(key)
 		} else {
-			let permission = await this.getPermissionObject(key, organization_id, type);
+			let permission = await this.getPermissionObject(key, organization_id, type, host);
 			this.permissions.set(key, permission)
 			return permission
 		}
@@ -54,16 +54,16 @@ class CoCreatePermission {
 	}
 	
 	//. overrride function
-	async getPermissionObject(key, organization_id, type) {
+	async getPermissionObject(key, organization_id, type, host) {
 		return null;
 	}
 	
 	async check(action, data, req, user_id) {
-		const host = this.getHost(req.headers)
 		const { apikey, ...paramData} = this.getParameters(action, data)
-		paramData.host = host;
-
-		console.log('paramData', paramData)
+	
+		if(!paramData.host)
+			paramData.host = this.getHost(req.headers)
+		
 		let status = false
 		status = await this.checkPermissionObject({
 			...paramData,
@@ -92,7 +92,7 @@ class CoCreatePermission {
 	async checkPermissionObject({id, id_type, host, collection, plugin, type, organization_id, document_id, name}) {
 		if (!id) return false;
 		
-		const permission = await this.getRolesByKey(id, organization_id, id_type || "apikey")
+		const permission = await this.getRolesByKey(id, organization_id, id_type || "apikey", host)
 				
 		if (!permission) return false;
 		
