@@ -1,3 +1,10 @@
+## [1.2.3](https://github.com/CoCreate-app/CoCreate-permissions/compare/v1.2.2...v1.2.3) (2022-02-16)
+
+
+### Bug Fixes
+
+* removed duplicate dependency cocreate-docs ([59a21b2](https://github.com/CoCreate-app/CoCreate-permissions/commit/59a21b2c79556fb2ae6f938143651f2702e04f47))
+
 ## [1.2.2](https://github.com/CoCreate-app/CoCreate-permissions/compare/v1.2.1...v1.2.2) (2022-02-16)
 
 
