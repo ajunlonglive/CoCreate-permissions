@@ -50,6 +50,6 @@
     "querystring": "^0.2.0"
   },
   "dependencies": {
-    "@cocreate/docs": "^1.0.3"
+    "@cocreate/docs": "^1.2.70"
   }
 }
