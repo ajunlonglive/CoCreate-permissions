@@ -30,7 +30,7 @@ class CoCreatePermission {
 		this.permissions = new Map();
 	}
 	
-	setPermissionObject(apikey, permission) {
+	setPermission(apikey, permission) {
 		this.permissions.set(apikey, permission)
 	}
 	
@@ -46,35 +46,90 @@ class CoCreatePermission {
 			this.permissions.set(key, permission)
 			return permission
 		}
-	}
-	
-	//. overrride function
-	getParameters(action, data) {
-		return {};		
-	}
-	
+			// console.log('request permission-----------')
+			// let permission = this.permissions.get(key)
+			// if (permission) {
+			// 	if (permission === 'initializing') {
+			// 		process.on('permission-initialized', async (per) => {
+			// 			console.log('per', per)
+			// 			return per
+			// 		})
+			// 	} else {			
+			// 		return permission
+			// 	}
+			// } else {
+			// 	this.permissions.set(key, 'initializing')
+			// 	let permission = await this.getPermissionObject(key, organization_id, type);
+			// 	this.permissions.set(key, permission)
+			// 	process.emit('permission-initialized', permission)
+			// 	return permission
+			// }
+		}
+		
 	//. overrride function
 	async getPermissionObject(key, organization_id, type, host) {
 		return null;
 	}
-	
-	async check(action, data, req, user_id) {
-		const { apikey, ...paramData} = this.getParameters(action, data)
-	
-		if(!paramData.host)
-			paramData.host = this.getHost(req.headers)
-		
-		let status = false
-		status = await this.checkPermissionObject({
-			...paramData,
-			id: user_id,
-			id_type: 'user_id'
+
+	async createPermissionObject(permission, roles) {
+		roles.map(role =>  {
+			for( const roleKey in role){
+				if (!["_id", "type", "name", "organization_id"].includes(roleKey)) {
+					if (!permission[roleKey]){
+						permission[roleKey] = role[roleKey]
+					} else {
+						if (Array.isArray(role[roleKey])){
+							for (let item of role[roleKey]){
+								if (!permission[roleKey].includes(item))
+									permission[roleKey].push(item)
+							}
+						}
+						else if ( typeof role[roleKey] == 'object'){
+							for (const [c] of Object.entries(role[roleKey])) {
+								if (!permission[roleKey][c]) {
+									permission[roleKey][c] = role[roleKey][c]
+								} else {
+									if ( typeof role[roleKey][c] == 'object'){
+										permission[roleKey][c] = {...permission[roleKey][c], ...role[roleKey][c]}
+									} else {
+										permission[roleKey][c] = role[roleKey][c]
+									}
+								}
+							}
+						} else {
+							permission[roleKey] = role[roleKey]
+						}
+					}
+				}
+			}
 		})
+		return permission;
+	}
+	
+	async check(module, data, req, user_id) {
+		let host = this.getHost(req.headers)
+		// let module = module
+		// if (["createDocument", "readDocument", "updateDocument", "deleteDocument", "readDocumentList"].includes(module)){
+		// 	module = 'crud'
+		// }
+
+		let status = false
+		if (user_id){
+			status = await this.checkPermissionObject({
+				id: user_id,
+				type: 'user_id',
+				module,
+				host,
+				...data
+			})
+		}
 		if (!status) {
 			status = await this.checkPermissionObject({
-				...paramData,
-				id: apikey,
-				id_type: 'apikey'
+				id: data.apiKey,
+				type: 'apikey',
+				module,
+				host,
+				...data
 			})
 		}
 		return status;
@@ -89,17 +144,11 @@ class CoCreatePermission {
 		return host
 	}
 	
-	async checkPermissionObject({id, id_type, host, collection, plugin, type, organization_id, document_id, name}) {
-		if (!id) return false;
+	async checkPermissionObject({id, type, organization_id, host, module, action, collection, document_id, name}) {
+		if (!id || !organization_id) return false;
 		
-		const permission = await this.getRolesByKey(id, organization_id, id_type || "apikey", host)
-				
-		if (!permission) return false;
-		
-		if (!organization_id ) {
-			return false;
-		}
-
+		const permission = await this.getRolesByKey(id, organization_id, type || "apikey", host)
+		if (!permission) return false
 		if (permission.super_admin == 'true') {
 			return true;
 		}
@@ -112,18 +161,25 @@ class CoCreatePermission {
 			return false;
 		}
 
-		let status = this.checkCollection(permission['collections'], collection, type)
-		if (status) {
-			status = this.checkDocument(permission['documents'], document_id, type, name)
+		let status
+		if (["createDocument", "readDocument", "updateDocument", "deleteDocument", "readDocumentList"].includes(module)){
+			status = this.checkCollection(permission['collections'], collection, module)
+			if (status) {
+				status = this.checkDocument(permission['documents'], document_id, module, name)
+			}
 		}
-		if (!status) {
-			status = this.checkPlugin(permission['plugins'], plugin, type)
+		else {
+			if (!action){
+				action = module
+				module = "actions"
+			}
+			status = this.checkPlugin(permission['plugins'], module, action)
 		}
-
+		// console.log('status', status)
 		return status;
 	}
 	
-	checkCollection(collections, collection, action) {
+	checkCollection(collections, collection, module) {
 		if (!collections || !collection) return false;
 		if (collections['*'] !== undefined)
 			return true;
@@ -131,9 +187,9 @@ class CoCreatePermission {
 		if (collection_roles && collection_roles.length > 0) {
 			let status = collection_roles.some(x => {
 				if (CRUD_PERMISSION[x]) {
-					return CRUD_PERMISSION[x].includes(action) || CRUD_PERMISSION[x].includes('*');
+					return CRUD_PERMISSION[x].includes(module) || CRUD_PERMISSION[x].includes('*');
 				} else {
-					return x == action;
+					return x == module;
 				}
 			})
 			return status;
@@ -142,13 +198,13 @@ class CoCreatePermission {
 		}
 	}
 	
-	checkDocument(documents, id, action, name) {
+	checkDocument(documents, id, module, name) {
 		let status = true;
 		if (!documents || !id || !name) return true
 		
 		if (documents && id && documents[id]) {
 			const { permissions, fields } = documents[id]
-			const action_type = this.__getActionType(action)
+			const action_type = this.__getActionType(module)
 			
 			if (name && fields[name]) {
 				status = fields[name].includes(action_type)
@@ -160,13 +216,13 @@ class CoCreatePermission {
 		return status;
 	}
 	
-	checkPlugin(plugins, plugin, action) {
-		if (!plugins || !plugin) return false;
-		if (plugins['*'] !== undefined)
+	checkPlugin(modules, module, action) {
+		if (!modules || !module) return false;
+		if (modules['*'] !== undefined)
 			return true;
-		let selected_plugin = plugins[plugin]
-		if (selected_plugin && selected_plugin.length > 0) {
-			let status = selected_plugin.some(x => x == action || x == '*')
+		let selected_module = modules[module]
+		if (selected_module && selected_module.length > 0) {
+			let status = selected_module.some(x => x == action || x == '*')
 			return status;
 		}
 		return false;
