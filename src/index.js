@@ -38,11 +38,11 @@ class CoCreatePermission {
 		return this.permissions.has(key)
 	}
 	
-	async getRolesByKey(key, organization_id, type, host) {
+	async getRolesByKey(key, organization_id, type, host, apiKey) {
 		if (this.permissions.get(key)) {
 			return this.permissions.get(key)
 		} else {
-			let permission = await this.getPermissionObject(key, organization_id, type, host);
+			let permission = await this.getPermissionObject(key, organization_id, type, host, apiKey);
 			this.permissions.set(key, permission)
 			return permission
 		}
@@ -67,7 +67,7 @@ class CoCreatePermission {
 		}
 		
 	//. overrride function
-	async getPermissionObject(key, organization_id, type, host) {
+	async getPermissionObject(key, organization_id, type, host, apiKey) {
 		return null;
 	}
 
@@ -112,7 +112,7 @@ class CoCreatePermission {
 		// if (["createDocument", "readDocument", "updateDocument", "deleteDocument", "readDocumentList"].includes(module)){
 		// 	module = 'crud'
 		// }
-
+		// console.log(module, data, user_id)
 		let status = false
 		if (user_id){
 			status = await this.checkPermissionObject({
@@ -123,6 +123,7 @@ class CoCreatePermission {
 				...data
 			})
 		}
+		console.log('status before apiKey', status)
 		if (!status) {
 			status = await this.checkPermissionObject({
 				id: data.apiKey,
@@ -144,10 +145,10 @@ class CoCreatePermission {
 		return host
 	}
 	
-	async checkPermissionObject({id, type, organization_id, host, module, action, collection, document_id, name}) {
+	async checkPermissionObject({id, type, apiKey, organization_id, host, module, action, collection, document_id, name}) {
 		if (!id || !organization_id) return false;
 		
-		const permission = await this.getRolesByKey(id, organization_id, type || "apikey", host)
+		const permission = await this.getRolesByKey(id, organization_id, type || "apikey", host, apiKey)
 		if (!permission) return false
 		if (permission.super_admin == 'true') {
 			return true;
@@ -156,7 +157,6 @@ class CoCreatePermission {
 		if (permission.organization_id !== organization_id) {
 			return false;
 		}
-		
 		if (!permission.hosts || !this.checkValue(permission.hosts, host)) {
 			return false;
 		}
@@ -175,7 +175,7 @@ class CoCreatePermission {
 			}
 			status = this.checkPlugin(permission['plugins'], module, action)
 		}
-		// console.log('status', status)
+
 		return status;
 	}
 	
@@ -220,6 +220,7 @@ class CoCreatePermission {
 		if (!modules || !module) return false;
 		if (modules['*'] !== undefined)
 			return true;
+		console.log('module', module, 'modules',modules)
 		let selected_module = modules[module]
 		if (selected_module && selected_module.length > 0) {
 			let status = selected_module.some(x => x == action || x == '*')
