@@ -1,3 +1,12 @@
+## [1.2.4](https://github.com/CoCreate-app/CoCreate-permissions/compare/v1.2.3...v1.2.4) (2022-02-28)
+
+
+### Bug Fixes
+
+* apply param apiKey for crud client ([d3ffd78](https://github.com/CoCreate-app/CoCreate-permissions/commit/d3ffd78433857a6d8299b684eff0a46af173b69b))
+* cocreate.config host ([e9d44ee](https://github.com/CoCreate-app/CoCreate-permissions/commit/e9d44ee9aa7dc84be361a7fd9e49d0d90bacbce2))
+* update function name setPermissionObject to setPermission ([b951004](https://github.com/CoCreate-app/CoCreate-permissions/commit/b951004f7014accf3a328f6e62d330584f4dcf21))
+
 ## [1.2.3](https://github.com/CoCreate-app/CoCreate-permissions/compare/v1.2.2...v1.2.3) (2022-02-16)
 
 
