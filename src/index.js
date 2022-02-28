@@ -123,7 +123,6 @@ class CoCreatePermission {
 				...data
 			})
 		}
-		console.log('status before apiKey', status)
 		if (!status) {
 			status = await this.checkPermissionObject({
 				id: data.apiKey,
@@ -175,7 +174,7 @@ class CoCreatePermission {
 			}
 			status = this.checkPlugin(permission['plugins'], module, action)
 		}
-
+		console.log('permission', status)
 		return status;
 	}
 	
