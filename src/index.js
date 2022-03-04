@@ -174,7 +174,6 @@ class CoCreatePermission {
 			}
 			status = this.checkPlugin(permission['plugins'], module, action)
 		}
-		console.log('permission', status)
 		return status;
 	}
 	
