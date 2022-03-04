@@ -1,3 +1,10 @@
+## [1.2.5](https://github.com/CoCreate-app/CoCreate-permissions/compare/v1.2.4...v1.2.5) (2022-03-04)
+
+
+### Bug Fixes
+
+* removed console.log ([3246c3e](https://github.com/CoCreate-app/CoCreate-permissions/commit/3246c3ed10528e49fcf3e112b67f39f305d651ab))
+
 ## [1.2.4](https://github.com/CoCreate-app/CoCreate-permissions/compare/v1.2.3...v1.2.4) (2022-02-28)
 
 
