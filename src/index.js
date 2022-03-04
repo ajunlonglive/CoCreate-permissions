@@ -246,5 +246,5 @@ class CoCreatePermission {
 		return action_type
 	}
 }
-module.exports = CoCreatePermission
 
+module.exports = CoCreatePermission
