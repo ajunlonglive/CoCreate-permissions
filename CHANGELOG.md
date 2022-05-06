@@ -1,3 +1,10 @@
+## [1.2.6](https://github.com/CoCreate-app/CoCreate-permissions/compare/v1.2.5...v1.2.6) (2022-05-06)
+
+
+### Bug Fixes
+
+* update config organization_Id to organization_id ([fddb8f2](https://github.com/CoCreate-app/CoCreate-permissions/commit/fddb8f2e6c30d07c2c8bedf2fbbce4b79d52bf64))
+
 ## [1.2.5](https://github.com/CoCreate-app/CoCreate-permissions/compare/v1.2.4...v1.2.5) (2022-03-04)
 
 
