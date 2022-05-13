@@ -149,7 +149,7 @@ class CoCreatePermission {
 		
 		const permission = await this.getRolesByKey(id, organization_id, type || "apikey", host, apiKey)
 		if (!permission) return false
-		if (permission.super_admin == 'true') {
+		if (permission.admin == 'true') {
 			return true;
 		}
 		
@@ -172,7 +172,7 @@ class CoCreatePermission {
 				action = module
 				module = "actions"
 			}
-			status = this.checkPlugin(permission['plugins'], module, action)
+			status = this.checkPlugin(permission['modules'], module, action)
 		}
 		return status;
 	}
