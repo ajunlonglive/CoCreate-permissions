@@ -46,25 +46,7 @@ class CoCreatePermission {
 			this.permissions.set(key, permission)
 			return permission
 		}
-			// console.log('request permission-----------')
-			// let permission = this.permissions.get(key)
-			// if (permission) {
-			// 	if (permission === 'initializing') {
-			// 		process.on('permission-initialized', async (per) => {
-			// 			console.log('per', per)
-			// 			return per
-			// 		})
-			// 	} else {			
-			// 		return permission
-			// 	}
-			// } else {
-			// 	this.permissions.set(key, 'initializing')
-			// 	let permission = await this.getPermissionObject(key, organization_id, type);
-			// 	this.permissions.set(key, permission)
-			// 	process.emit('permission-initialized', permission)
-			// 	return permission
-			// }
-		}
+	}
 		
 	//. overrride function
 	async getPermissionObject(key, organization_id, type, host, apiKey) {
@@ -108,11 +90,6 @@ class CoCreatePermission {
 	
 	async check(module, data, req, user_id) {
 		let host = this.getHost(req.headers)
-		// let module = module
-		// if (["createDocument", "readDocument", "updateDocument", "deleteDocument", "readDocumentList"].includes(module)){
-		// 	module = 'crud'
-		// }
-		// console.log(module, data, user_id)
 		let status = false
 		if (user_id){
 			status = await this.checkPermissionObject({
@@ -218,7 +195,7 @@ class CoCreatePermission {
 		if (!modules || !module) return false;
 		if (modules['*'] !== undefined)
 			return true;
-		console.log('module', module, 'modules',modules)
+
 		let selected_module = modules[module]
 		if (selected_module && selected_module.length > 0) {
 			let status = selected_module.some(x => x == action || x == '*')
