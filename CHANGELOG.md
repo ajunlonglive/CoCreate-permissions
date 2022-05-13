@@ -1,3 +1,11 @@
+## [1.2.7](https://github.com/CoCreate-app/CoCreate-permissions/compare/v1.2.6...v1.2.7) (2022-05-13)
+
+
+### Bug Fixes
+
+* rename permission.plugins to permission.modules ([a09b330](https://github.com/CoCreate-app/CoCreate-permissions/commit/a09b3309bd3bf91f6432eeac76cbd99b470469b3))
+* renamed super_admin to admin ([72dbbae](https://github.com/CoCreate-app/CoCreate-permissions/commit/72dbbaedccd78fd75040d78daa820a66e41de4c3))
+
 ## [1.2.6](https://github.com/CoCreate-app/CoCreate-permissions/compare/v1.2.5...v1.2.6) (2022-05-06)
 
 
