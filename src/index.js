@@ -138,7 +138,7 @@ class CoCreatePermission {
 		}
 
 		let status
-		if (["createDocument", "readDocument", "updateDocument", "deleteDocument", "readDocumentList"].includes(module)){
+		if (["createDocument", "readDocument", "updateDocument", "deleteDocument", "readDocuments"].includes(module)){
 			status = this.checkCollection(permission['collections'], collection, module)
 			if (status) {
 				status = this.checkDocument(permission['documents'], document_id, module, name)
