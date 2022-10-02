@@ -20,9 +20,7 @@
     "html5-framework",
     "javascript-framework"
   ],
-  "publishConfig": {
-    "access": "public"
-  },
+  "publishConfig": { "access": "public" },
   "scripts": {
     "start": "npx webpack --config webpack.config.js",
     "build": "NODE_ENV=production npx webpack --config webpack.config.js",
@@ -44,11 +42,6 @@
     "url": "https://github.com/sponsors/CoCreate-app"
   },
   "main": "./src/index.js",
-  "devDependencies": {
-    "mongodb": "^3.5.8",
-    "querystring": "^0.2.0"
-  },
-  "dependencies": {
-    "@cocreate/docs": "^1.3.15"
-  }
+  "devDependencies": { "mongodb": "^3.5.8", "querystring": "^0.2.0" },
+  "dependencies": { "@cocreate/docs": "^1.3.18" }
 }
