@@ -1,3 +1,10 @@
+## [1.3.5](https://github.com/CoCreate-app/CoCreate-permissions/compare/v1.3.4...v1.3.5) (2022-10-02)
+
+
+### Bug Fixes
+
+* bump dependencies ([a1664ed](https://github.com/CoCreate-app/CoCreate-permissions/commit/a1664ede4e88781c5a03c90a1757dc8718ba4688))
+
 ## [1.3.4](https://github.com/CoCreate-app/CoCreate-permissions/compare/v1.3.3...v1.3.4) (2022-10-01)
 
 
